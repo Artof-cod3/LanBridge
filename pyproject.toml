@@ -1,0 +1,19 @@
+[project]
+name = "lanbridge"
+version = "0.1.0"
+description = "Lightweight L2 virtual LAN bridge: keep static IPs across sites"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+lanbridge = "lanbridge.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["lanbridge*"]
+
+[tool.setuptools.package-data]
+lanbridge = ["dashboard/static/*"]

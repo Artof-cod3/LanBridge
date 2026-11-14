@@ -1,0 +1,19 @@
+# Generated profiles (recreated by `lanbridge gen`)
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Local run artefacts
+dashboard.log
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
