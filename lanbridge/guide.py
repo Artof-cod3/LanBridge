@@ -40,6 +40,18 @@ MACHINES: list[dict[str, str]] = [
 
 STEPS: list[dict[str, Any]] = [
     {
+        "id": "install",
+        "title": "First run on a fresh machine",
+        "machine": "either",
+        "body": "Debian/Ubuntu: one script installs Python deps, iproute2, nftables and a launcher. "
+                "Windows needs nothing - Python 3.9+ and the folder are enough.",
+        "commands": [
+            "sudo ./install.sh                    # CLI + dashboard",
+            "sudo ./install.sh --with openvpn     # or --with vxlan",
+            "lanbridge doctor",
+        ],
+    },
+    {
         "id": "generate",
         "title": "Generate the profiles",
         "machine": "either",
@@ -94,6 +106,18 @@ STEPS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "ssh",
+        "title": "Use it: SSH across the segment",
+        "machine": "vm-you",
+        "body": "Once the link is up the far side is just a host on the LAN, so ordinary TCP works. "
+                "sshd must run on the target and tcp/22 must be allowed there - the tunnel does "
+                "not carry SSH for you, it makes the LAN reachable.",
+        "commands": [
+            "ssh user@192.168.50.77",
+            "ssh -o ConnectTimeout=5 user@192.168.50.240",
+        ],
+    },
+    {
         "id": "teardown",
         "title": "Tear down, client first",
         "machine": "vm-you",
@@ -117,6 +141,13 @@ NOTES: list[dict[str, str]] = [
                 "VM NIC bridging.",
     },
     {
+        "title": "SSH over the bridge",
+        "body": "SSH works exactly as on a physical LAN once the segment is up: same subnet, same ARP. "
+                "On a Windows target enable OpenSSH Server and allow tcp/22; on Debian install "
+                "openssh-server. If ping answers and ssh times out, it is sshd or the target firewall, "
+                "not the tunnel.",
+    },
+    {
         "title": "The .sh files are not Windows files",
         "body": "ip, bridge and wg do not exist on Windows. A generated .sh belongs in the VM it "
                 "was written for.",
@@ -136,6 +167,10 @@ TROUBLESHOOT: list[dict[str, str]] = [
      "where": "vm-you", "fix": "MTU. Lower tun-mtu to 1400 and retry the -M do probe."},
     {"symptom": "Adapter name not found in the VM",
      "where": "vm-ap", "fix": "Fix host.lan_iface under Settings (eth0 vs ens33 vs enp0s3)."},
+    {"symptom": "ping works, ssh times out",
+     "where": "vm-ap", "fix": "sshd not running on the target, or tcp/22 blocked by its firewall. Not a tunnel fault."},
+    {"symptom": "install.sh: python3 too old (Debian 11 / Ubuntu 22.04)",
+     "where": "vm-ap", "fix": "The script installs python3-tomli automatically; re-run it after apt update."},
 ]
 
 
