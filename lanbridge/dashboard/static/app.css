@@ -804,6 +804,110 @@ input:focus { border-color: var(--accent); }
   .guide-legend { grid-template-columns: 1fr; }
 }
 
+/* --------------------------------------------------- reference-layout pass */
+
+.avatar {
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+.greeting { display: flex; align-items: center; gap: 10px; }
+.greet-title { font-size: 14px; }
+
+.theme-prefix { color: var(--faint); font-size: 11px; }
+
+.side-promo {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 11px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.promo-ico { color: var(--ok); margin-top: 1px; flex: 0 0 auto; }
+.promo-title { font-size: 11.5px; }
+.promo-sub { color: var(--faint); font-size: 10.5px; }
+
+/* Hero: bigger ring, filled primary action */
+.status-ring {
+  width: 96px; height: 96px;
+  box-shadow:
+    inset 0 0 0 7px var(--bg),
+    0 0 0 1px var(--border-soft);
+}
+.status-ring .ring-glyph svg { width: 26px; height: 26px; }
+.hero-state { font-size: 19px; }
+.hero-sub { font-size: 12.5px; }
+
+.btn.primary {
+  margin-top: 14px;
+  min-width: 230px;
+  padding: 10px 18px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fbfbfd;
+  font-size: 13px;
+}
+.btn.primary:hover { background: var(--accent); border-color: var(--text); color: #ffffff; }
+
+/* Range chips on the traffic card */
+.range { display: inline-flex; gap: 2px; }
+.chip {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 2px 9px;
+  cursor: pointer;
+}
+.chip:hover { color: var(--muted); }
+.chip.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* Latency signal bars */
+.bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.bars i { width: 3px; background: var(--border); border-radius: 1px; }
+.bars i:nth-child(1) { height: 5px; }
+.bars i:nth-child(2) { height: 8px; }
+.bars i:nth-child(3) { height: 11px; }
+.bars i:nth-child(4) { height: 14px; }
+.bars[data-level="1"] i:nth-child(-n+1),
+.bars[data-level="2"] i:nth-child(-n+2),
+.bars[data-level="3"] i:nth-child(-n+3),
+.bars[data-level="4"] i:nth-child(-n+4) { background: var(--ok); }
+
+/* Right-column status pills */
+.pill {
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-family: var(--mono); font-size: 9.5px;
+  color: var(--faint);
+  line-height: 16px;
+}
+.pill.ok   { border-color: var(--ok);   color: var(--ok); }
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.fail { border-color: var(--bad);  color: var(--bad); }
+
+/* Chart area fill behind the rx line */
+#chart .series-area { stroke: none; fill: url(#rxFill); }
+#chart linearGradient stop:first-child { stop-color: var(--accent); stop-opacity: 0.30; }
+#chart linearGradient stop:last-child  { stop-color: var(--accent); stop-opacity: 0; }
+
+#chart .empty-text { font-size: 10.5px; }
+
+.chart-axis { gap: 10px; }
+.chart-axis .hint { text-align: center; }
+
 /* ------------------------------------------------------------- responsive */
 
 @media (max-width: 1080px) {

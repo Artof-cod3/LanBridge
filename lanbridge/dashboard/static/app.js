@@ -7,6 +7,7 @@ let probe = null;
 let selectedTransport = null;
 let selectedRole = "both";
 let activeFile = null;
+let trafficWindow = 0;   // 0 = whole session, otherwise seconds
 
 const esc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) =>
@@ -116,11 +117,8 @@ function renderChrome() {
   const s = state.settings;
   const link = state.link;
 
-  $("greet").textContent = s.site.name;
-  $("greet-sub").textContent =
-    link.state === "linked"
-      ? "Your segment is live."
-      : "Your segment is ready when you are.";
+  $("greet").textContent = "Welcome back";
+  $("greet-sub").textContent = `${s.site.name} · ${link.state === "linked" ? "segment live" : "ready when you are"}`;
 
   $("link-dot").className = "dot " + link.state;
   $("link-text").textContent = LINK_LABEL[link.state] || link.state;
@@ -158,7 +156,10 @@ function renderProbe() {
     : gw.ok
       ? (gw.rtt_ms !== null ? `${gw.rtt_ms} ms` : "reply")
       : "no reply";
-  $("host-dot").className = "dot " + (gw && gw.ok ? "ok" : "offline");
+
+  const rtt = gw && gw.ok ? gw.rtt_ms : null;
+  const level = !gw || !gw.ok ? 0 : rtt === null ? 2 : rtt < 40 ? 4 : rtt < 90 ? 3 : 2;
+  $("host-bars").dataset.level = String(level);
 
   if (staleState()) return;
   $("act-probe-sub").textContent = gw && gw.ok
@@ -190,16 +191,13 @@ function renderTraffic() {
   drawChart(t);
 }
 
-function drawChart(t) {
-  const svg = $("chart");
-  const W = 600, H = 132, pad = 8;
-  const empty = `<text class="empty-text" x="${W / 2}" y="${H / 2}" text-anchor="middle">collecting samples…</text>`;
-  if (!t || !t.available || t.samples.length < 3) {
-    svg.innerHTML = empty;
-    return;
+function chartRates(t, windowSeconds) {
+  if (!t || !t.available || t.samples.length < 3) return [];
+  let samples = t.samples;
+  if (windowSeconds > 0) {
+    const cutoff = samples[samples.length - 1].t - windowSeconds;
+    samples = samples.filter((s) => s.t >= cutoff);
   }
-
-  const samples = t.samples;
   const rates = [];
   for (let i = 1; i < samples.length; i += 1) {
     const dt = Math.max(1, samples[i].t - samples[i - 1].t);
@@ -208,6 +206,15 @@ function drawChart(t) {
       tx: Math.max(0, samples[i].tx - samples[i - 1].tx) / dt,
     });
   }
+  return rates;
+}
+
+function drawChart(t) {
+  const svg = $("chart");
+  const W = 600, H = 132, pad = 8;
+  const empty = `<text class="empty-text" x="${W / 2}" y="${H / 2}" text-anchor="middle">collecting samples…</text>`;
+
+  const rates = chartRates(t, trafficWindow);
   if (rates.length < 2) {
     svg.innerHTML = empty;
     return;
@@ -216,16 +223,25 @@ function drawChart(t) {
   const peak = Math.max(1, ...rates.map((r) => Math.max(r.rx, r.tx)));
   const x = (i) => pad + (i * (W - pad * 2)) / (rates.length - 1);
   const y = (v) => H - pad - (v / peak) * (H - pad * 2);
-  const path = (key) =>
+  const line = (key) =>
     rates.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(r[key]).toFixed(1)}`).join(" ");
 
   const grid = [0.25, 0.5, 0.75]
     .map((f) => `<line class="grid-line" x1="${pad}" x2="${W - pad}" y1="${(H * f).toFixed(1)}" y2="${(H * f).toFixed(1)}"/>`)
     .join("");
 
-  svg.innerHTML = `${grid}
-    <path class="series-b" d="${path("tx")}"/>
-    <path class="series-a" d="${path("rx")}"/>`;
+  const area = `${line("rx")} L${x(rates.length - 1).toFixed(1)},${H - pad} L${pad},${H - pad} Z`;
+
+  svg.innerHTML = `<defs>
+      <linearGradient id="rxFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"/>
+        <stop offset="100%"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path class="series-area" d="${area}"/>
+    <path class="series-b" d="${line("tx")}"/>
+    <path class="series-a" d="${line("rx")}"/>`;
 }
 
 function renderDetails() {
@@ -279,7 +295,7 @@ function renderMiniChecks() {
       (c) => `<li>
         <span class="c-dot ${esc(c.level)}"></span>
         <span class="mc-text">${esc(c.title)}</span>
-        <span class="mc-fix">${esc(c.level === "ok" ? "ok" : c.level)}</span>
+        <span class="pill ${esc(c.level)}">${esc(c.level)}</span>
       </li>`
     )
     .join("");
@@ -678,6 +694,16 @@ document.querySelectorAll("#role-seg .seg").forEach((btn) => {
       b.classList.toggle("is-active", b === btn)
     );
   });
+});
+
+$("traffic-range").addEventListener("click", (ev) => {
+  const chip = ev.target.closest("[data-window]");
+  if (!chip) return;
+  trafficWindow = Number(chip.dataset.window) || 0;
+  document.querySelectorAll("#traffic-range .chip").forEach((c) =>
+    c.classList.toggle("is-active", c === chip)
+  );
+  if (state) drawChart(state.traffic);
 });
 
 $("generate").addEventListener("click", async () => {

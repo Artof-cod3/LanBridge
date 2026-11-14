@@ -58,6 +58,17 @@
         <div class="side-card-value" id="side-network">—</div>
         <div class="side-card-sub" id="side-sub">—</div>
       </div>
+      <div class="side-promo">
+        <span class="promo-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 3l7 3v5.5c0 4.2-2.9 7.4-7 9.5-4.1-2.1-7-5.3-7-9.5V6l7-3z"/>
+          </svg>
+        </span>
+        <div>
+          <div class="promo-title">Your segment, your rules.</div>
+          <div class="promo-sub">Static addresses stay identical.</div>
+        </div>
+      </div>
       <div class="rail-meta" id="rail-config">—</div>
       <div class="rail-meta" id="rail-updated">not refreshed yet</div>
     </div>
@@ -67,8 +78,16 @@
   <div class="main">
     <header class="topbar">
       <div class="greeting">
-        <div class="greet-title" id="greet">LanBridge</div>
-        <div class="greet-sub" id="greet-sub">Your segment is ready when you are.</div>
+        <span class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="8.5" r="3.4"/>
+            <path d="M4.8 20c.7-3.6 3.7-5.6 7.2-5.6s6.5 2 7.2 5.6"/>
+          </svg>
+        </span>
+        <div>
+          <div class="greet-title" id="greet">Welcome back</div>
+          <div class="greet-sub" id="greet-sub">Your segment is ready when you are.</div>
+        </div>
       </div>
 
       <div class="topbar-right">
@@ -78,6 +97,7 @@
         </span>
 
         <div class="appearance">
+          <span class="theme-prefix">Theme:</span>
           <button class="btn quiet theme-btn" id="theme-btn" type="button"
                   aria-expanded="false" aria-haspopup="dialog" aria-controls="theme-pop">
             <span class="theme-btn-dot" aria-hidden="true"></span>
@@ -141,7 +161,11 @@
             <div class="card">
               <div class="card-head">
                 <h2>Traffic</h2>
-                <span class="hint" id="traffic-hint">session</span>
+                <div class="range" id="traffic-range" role="group" aria-label="Traffic window">
+                  <button class="chip" data-window="300" type="button">5m</button>
+                  <button class="chip" data-window="900" type="button">15m</button>
+                  <button class="chip is-active" data-window="0" type="button">session</button>
+                </div>
               </div>
               <div class="traffic">
                 <div class="totals">
@@ -167,6 +191,7 @@
               </div>
               <div class="chart-axis">
                 <span id="axis-from">—</span>
+                <span class="hint" id="traffic-hint"></span>
                 <span id="axis-to">—</span>
               </div>
             </div>
@@ -224,7 +249,9 @@
                   <div class="host-sub" id="host-sub">—</div>
                 </div>
                 <div class="host-latency">
-                  <span class="dot" id="host-dot"></span>
+                  <span class="bars" id="host-bars" data-level="0" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i>
+                  </span>
                   <span id="host-rtt">—</span>
                 </div>
               </div>
