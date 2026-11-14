@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LanBridge</title>
+<script src="/static/theme.js"></script>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ------------------------------------------------------------ sidebar -->
+  <aside class="sidebar">
+    <div class="side-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 3l7 3v5.5c0 4.2-2.9 7.4-7 9.5-4.1-2.1-7-5.3-7-9.5V6l7-3z"/>
+          <path d="M9.2 12.1l2 2 3.6-3.9"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <div class="brand-name">LanBridge</div>
+        <div class="brand-tag">One segment, anywhere.</div>
+      </div>
+    </div>
+
+    <nav class="side-nav" aria-label="Sections">
+      <button class="nav-item is-active" data-view="dashboard" type="button">
+        <span class="nav-ico" aria-hidden="true">▤</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="guide" type="button">
+        <span class="nav-ico" aria-hidden="true">?</span> Guide
+      </button>
+      <button class="nav-item" data-view="servers" type="button">
+        <span class="nav-ico" aria-hidden="true">◍</span> Servers
+      </button>
+      <button class="nav-item" data-view="activity" type="button">
+        <span class="nav-ico" aria-hidden="true">≡</span> Activity
+      </button>
+      <button class="nav-item" data-view="diagnostics" type="button">
+        <span class="nav-ico" aria-hidden="true">✓</span> Diagnostics
+      </button>
+      <button class="nav-item" data-view="files" type="button">
+        <span class="nav-ico" aria-hidden="true">⌸</span> Files
+      </button>
+      <button class="nav-item" data-view="settings" type="button">
+        <span class="nav-ico" aria-hidden="true">⚙</span> Settings
+      </button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="side-card">
+        <div class="side-card-head">
+          <span class="dot" id="side-dot"></span>
+          <span id="side-state">checking</span>
+        </div>
+        <div class="side-card-value" id="side-network">—</div>
+        <div class="side-card-sub" id="side-sub">—</div>
+      </div>
+      <div class="rail-meta" id="rail-config">—</div>
+      <div class="rail-meta" id="rail-updated">not refreshed yet</div>
+    </div>
+  </aside>
+
+  <!-- --------------------------------------------------------------- main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="greeting">
+        <div class="greet-title" id="greet">LanBridge</div>
+        <div class="greet-sub" id="greet-sub">Your segment is ready when you are.</div>
+      </div>
+
+      <div class="topbar-right">
+        <span class="status">
+          <span class="dot" id="link-dot"></span>
+          <span id="link-text">checking</span>
+        </span>
+
+        <div class="appearance">
+          <button class="btn quiet theme-btn" id="theme-btn" type="button"
+                  aria-expanded="false" aria-haspopup="dialog" aria-controls="theme-pop">
+            <span class="theme-btn-dot" aria-hidden="true"></span>
+            <span id="theme-label">Dark</span>
+          </button>
+
+          <div class="popover is-hidden" id="theme-pop" role="dialog" aria-label="Appearance">
+            <div class="pop-head">
+              <span>Appearance</span>
+              <span class="hint">saved in this browser</span>
+            </div>
+            <div class="pop-group">
+              <div class="pop-title">Theme</div>
+              <div class="theme-grid" id="theme-grid"></div>
+              <button class="btn quiet small" id="theme-system" type="button">Follow system</button>
+            </div>
+            <div class="pop-group">
+              <div class="pop-title">Accent</div>
+              <div class="accent-row" id="accent-row"></div>
+            </div>
+            <div class="pop-group">
+              <div class="pop-title">Density</div>
+              <div class="segmented" id="density-seg" role="group" aria-label="Density">
+                <button class="seg" data-density="compact" type="button">compact</button>
+                <button class="seg is-active" data-density="comfortable" type="button">comfortable</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn quiet" id="refresh" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <span id="link-live" class="sr-only" aria-live="polite" role="status"></span>
+
+    <main class="content">
+
+      <!-- ------------------------------------------------------ dashboard -->
+      <section class="view" id="view-dashboard">
+        <div class="grid">
+          <div class="col">
+            <div class="card hero">
+              <div class="hero-backdrop" aria-hidden="true"></div>
+              <div class="hero-body">
+                <div class="status-ring" id="ring">
+                  <span class="ring-glyph" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="5" y="10.5" width="14" height="9" rx="2"/>
+                      <path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>
+                    </svg>
+                  </span>
+                </div>
+                <div class="hero-state" id="link-state">—</div>
+                <div class="hero-sub" id="link-sub">—</div>
+                <button class="btn primary" id="connect" type="button">Connect</button>
+                <div class="hero-note" id="hero-note"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h2>Traffic</h2>
+                <span class="hint" id="traffic-hint">session</span>
+              </div>
+              <div class="traffic">
+                <div class="totals">
+                  <div class="total">
+                    <span class="total-arrow down" aria-hidden="true">↓</span>
+                    <div>
+                      <div class="total-value" id="rx-total">—</div>
+                      <div class="total-label">downloaded</div>
+                    </div>
+                  </div>
+                  <div class="total">
+                    <span class="total-arrow up" aria-hidden="true">↑</span>
+                    <div>
+                      <div class="total-value" id="tx-total">—</div>
+                      <div class="total-label">uploaded</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <svg id="chart" viewBox="0 0 600 132" preserveAspectRatio="none" role="img"
+                       aria-label="Throughput history"></svg>
+                </div>
+              </div>
+              <div class="chart-axis">
+                <span id="axis-from">—</span>
+                <span id="axis-to">—</span>
+              </div>
+            </div>
+
+            <div class="pair">
+              <div class="card">
+                <div class="card-head"><h2>Connection</h2><span class="hint" id="session-hint"></span></div>
+                <div class="rows">
+                  <div class="row"><span>Duration</span><b id="d-duration">00:00:00</b></div>
+                  <div class="row"><span>On segment</span><b id="d-address">—</b></div>
+                  <div class="row"><span>Virtual device</span><b id="d-device">—</b></div>
+                  <div class="row"><span>Inner MTU</span><b id="d-mtu">—</b></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h2>Quick actions</h2></div>
+                <div class="actions">
+                  <button class="action" id="act-probe" type="button">
+                    <span class="action-ico" aria-hidden="true">◎</span>
+                    <span class="action-body">
+                      <span class="action-title">Check reachability</span>
+                      <span class="action-sub" id="act-probe-sub">ping gateway and bridge node</span>
+                    </span>
+                    <span class="chev" aria-hidden="true">›</span>
+                  </button>
+                  <button class="action" id="act-generate" type="button">
+                    <span class="action-ico" aria-hidden="true">⌸</span>
+                    <span class="action-body">
+                      <span class="action-title">Regenerate profiles</span>
+                      <span class="action-sub" id="act-generate-sub">write both roles</span>
+                    </span>
+                    <span class="chev" aria-hidden="true">›</span>
+                  </button>
+                  <button class="action" data-goto="files" type="button">
+                    <span class="action-ico" aria-hidden="true">↗</span>
+                    <span class="action-body">
+                      <span class="action-title">Open generated files</span>
+                      <span class="action-sub">read-only preview</span>
+                    </span>
+                    <span class="chev" aria-hidden="true">›</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card">
+              <div class="card-head"><h2>Host location</h2></div>
+              <div class="host">
+                <div class="host-ico" aria-hidden="true">◍</div>
+                <div class="host-main">
+                  <div class="host-name" id="host-name">—</div>
+                  <div class="host-sub" id="host-sub">—</div>
+                </div>
+                <div class="host-latency">
+                  <span class="dot" id="host-dot"></span>
+                  <span id="host-rtt">—</span>
+                </div>
+              </div>
+              <div class="rows">
+                <div class="row"><span>Bridge node</span><b id="h-bridge">—</b></div>
+                <div class="row"><span>Remote endpoint</span><b id="h-remote">—</b></div>
+                <div class="row">
+                  <span>Transport</span>
+                  <select id="h-transport" aria-label="Transport"></select>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h2>Segment checks</h2><span class="hint" id="checks-hint"></span></div>
+              <ul class="mini-checks" id="mini-checks"></ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h2>Recent activity</h2>
+                <button class="link-btn" data-goto="activity" type="button">View all</button>
+              </div>
+              <ul class="feed" id="feed"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- -------------------------------------------------------- servers -->
+      <section class="view is-hidden" id="view-servers">
+        <div class="grid">
+          <div class="col">
+            <div class="card">
+              <div class="card-head"><h2>Transport</h2><span class="hint">host profile runs on the AP side</span></div>
+              <div class="transports" id="transports"></div>
+              <div class="form-actions">
+                <div class="segmented" id="role-seg" role="group" aria-label="Role">
+                  <button class="seg" data-role="host" type="button">host</button>
+                  <button class="seg" data-role="client" type="button">client</button>
+                  <button class="seg is-active" data-role="both" type="button">both</button>
+                </div>
+                <button class="btn" id="generate" type="button">Generate files</button>
+                <span class="hint" id="generate-note"></span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Generated</h2><span class="hint" id="output-count"></span></div>
+              <div class="outputs" id="outputs"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-head"><h2>Preflight</h2><span class="hint">current transport</span></div>
+              <div class="preflight" id="preflight-inline"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------- guide -->
+      <section class="view is-hidden" id="view-guide">
+        <div class="card">
+          <div class="card-head">
+            <h2>Setup guide</h2>
+            <span class="hint">every command is labelled with its machine</span>
+          </div>
+          <div class="guide-legend" id="guide-legend"></div>
+          <div class="guide-note" id="guide-verified"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Steps</h2><span class="hint" id="guide-count"></span></div>
+          <div class="guide-steps" id="guide-steps"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Good to know</h2></div>
+          <ul class="guide-notes" id="guide-notes"></ul>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Troubleshooting</h2><span class="hint">symptom → machine to inspect</span></div>
+          <table class="table" id="trouble-table">
+            <thead><tr><th>Symptom</th><th>Look here</th><th>Fix</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------- activity -->
+      <section class="view is-hidden" id="view-activity">
+        <div class="card">
+          <div class="card-head"><h2>Activity</h2><span class="hint">this session</span></div>
+          <ul class="feed feed-full" id="feed-full"></ul>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------- diagnostics -->
+      <section class="view is-hidden" id="view-diagnostics">
+        <div class="card">
+          <div class="card-head"><h2>Checks</h2><span class="hint" id="check-count"></span></div>
+          <ul class="checks" id="checks"></ul>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Routes</h2><span class="hint">first 14</span></div>
+          <table class="table mono" id="route-table">
+            <thead><tr><th>Destination</th><th>Gateway</th><th>Interface</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Adapters</h2><span class="hint" id="adapter-count"></span></div>
+          <table class="table" id="iface-table">
+            <thead><tr><th>Name</th><th>State</th><th>Address</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------------- files -->
+      <section class="view is-hidden" id="view-files">
+        <div class="card files-panel">
+          <div class="card-head"><h2>Output</h2><span class="hint">read-only preview</span></div>
+          <div class="files-body">
+            <ul class="file-list" id="file-list"></ul>
+            <div class="file-preview">
+              <div class="file-preview-head" id="file-name">no file selected</div>
+              <pre id="file-content" class="file-code"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- -------------------------------------------------------- settings -->
+      <section class="view is-hidden" id="view-settings">
+        <div class="grid">
+          <div class="col">
+            <div class="card">
+              <div class="card-head"><h2>Address plan</h2><span class="hint" id="site-config-path"></span></div>
+              <form id="site-form" class="form">
+                <div class="grid2">
+                  <label>Site name<input name="site.name" id="f-name" spellcheck="false"></label>
+                  <label>Subnet<input name="site.subnet" id="f-subnet" spellcheck="false"></label>
+                  <label>Gateway<input name="site.gateway" id="f-gateway" spellcheck="false"></label>
+                  <label>Bridge address<input name="site.bridge_address" id="f-bridge" spellcheck="false"></label>
+                  <label>DHCP start<input name="site.dhcp_start" id="f-dhcp-start" spellcheck="false"></label>
+                  <label>DHCP end<input name="site.dhcp_end" id="f-dhcp-end" spellcheck="false"></label>
+                  <label>Client static IP<input name="client.static_ip" id="f-client" spellcheck="false"></label>
+                  <label>AP-facing adapter<input name="host.lan_iface" id="f-lan" spellcheck="false"></label>
+                  <label>Tunnel port<input name="tunnel.listen_port" id="f-port" inputmode="numeric" spellcheck="false"></label>
+                  <label>Remote host<input name="tunnel.remote_host" id="f-remote" spellcheck="false"></label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn" type="submit">Save plan</button>
+                  <span class="hint" id="save-note"></span>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-head"><h2>Validation</h2><span class="hint" id="plan-verdict"></span></div>
+              <ul class="checks" id="plan-checks"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------- preflight -->
+<div class="modal is-hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="modal-title">Preflight</h2>
+      <button class="btn quiet small" id="modal-close" type="button">Close</button>
+    </div>
+    <ul class="preflight" id="preflight-steps"></ul>
+    <div class="modal-command">
+      <pre id="preflight-command"></pre>
+      <button class="btn small" id="copy-command" type="button">Copy</button>
+    </div>
+    <div class="hint" id="preflight-notes"></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
