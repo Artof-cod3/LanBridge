@@ -161,14 +161,10 @@ function renderProbe() {
   const level = !gw || !gw.ok ? 0 : rtt === null ? 2 : rtt < 40 ? 4 : rtt < 90 ? 3 : 2;
   $("host-bars").dataset.level = String(level);
 
-  if (staleState()) return;
+  if (!state) return;
   $("act-probe-sub").textContent = gw && gw.ok
     ? `gateway replies in ${gw.rtt_ms ?? "?"} ms`
     : "gateway does not answer yet";
-}
-
-function staleState() {
-  return !state;
 }
 
 function renderTraffic() {
@@ -522,42 +518,39 @@ function renderSettings() {
 
 /* --------------------------------------------------------------- preflight */
 
+const PREFLIGHT_CHECKING = `<li><span class="c-dot info"></span><div>Checking…</div></li>`;
+
+const preflightRows = (steps) =>
+  steps
+    .map(
+      (s) => `<li>
+        <span class="c-dot ${s.ok ? "ok" : "fail"}"></span>
+        <div>${esc(s.text)}${s.fix ? `<div class="p-fix">${esc(s.fix)}</div>` : ""}</div>
+      </li>`
+    )
+    .join("");
+
 async function loadPreflight(transport, target) {
   if (!target) return;
-  target.innerHTML = `<li><span class="c-dot info"></span><div>Checking…</div></li>`;
+  target.innerHTML = PREFLIGHT_CHECKING;
   try {
     const data = await postJSON("/api/preflight", { transport });
-    target.innerHTML = data.steps
-      .map(
-        (s) => `<li>
-          <span class="c-dot ${s.ok ? "ok" : "fail"}"></span>
-          <div>${esc(s.text)}${s.fix ? `<div class="p-fix">${esc(s.fix)}</div>` : ""}</div>
-        </li>`
-      )
-      .join("");
+    target.innerHTML = preflightRows(data.steps);
   } catch (err) {
     target.innerHTML = `<li><span class="c-dot fail"></span><div>${esc(err.message || err)}</div></li>`;
   }
 }
 
 async function openPreflight(transport) {
-  const modal = $("modal");
-  modal.classList.remove("is-hidden");
-  $("preflight-steps").innerHTML = `<li><span class="c-dot info"></span><div>Checking…</div></li>`;
+  $("modal").classList.remove("is-hidden");
+  $("preflight-steps").innerHTML = PREFLIGHT_CHECKING;
   $("preflight-command").textContent = "";
   $("preflight-notes").textContent = "";
 
   try {
     const data = await postJSON("/api/preflight", { transport });
     $("modal-title").textContent = data.ready ? "Ready to connect" : "Blocked before connecting";
-    $("preflight-steps").innerHTML = data.steps
-      .map(
-        (s) => `<li>
-          <span class="c-dot ${s.ok ? "ok" : "fail"}"></span>
-          <div>${esc(s.text)}${s.fix ? `<div class="p-fix">${esc(s.fix)}</div>` : ""}</div>
-        </li>`
-      )
-      .join("");
+    $("preflight-steps").innerHTML = preflightRows(data.steps);
     $("preflight-command").textContent = data.command;
     $("preflight-notes").textContent = data.notes;
   } catch (err) {
@@ -626,11 +619,9 @@ $("copy-command").addEventListener("click", async () => {
   }
 });
 
-$("act-probe").addEventListener("click", async () => {
+$("act-probe").addEventListener("click", () => {
   $("act-probe-sub").textContent = "checking…";
-  const res = await fetch("/api/probe").then((r) => r.json()).catch(() => null);
-  probe = res;
-  renderProbe();
+  refreshProbe();
 });
 
 $("act-generate").addEventListener("click", async () => {
@@ -684,8 +675,6 @@ $("site-form").addEventListener("submit", async (ev) => {
     note.textContent = String(err.message || err);
   }
 });
-
-$("h-transport").addEventListener("change", () => {});
 
 document.querySelectorAll("#role-seg .seg").forEach((btn) => {
   btn.addEventListener("click", () => {

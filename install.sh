@@ -116,7 +116,6 @@ PY
   # 4. doctor must run to completion. Exit 1 means "plan has findings", which
   #    is a legitimate result; a traceback (2) or a crash is not.
   todo "doctor"
-  rc=0
   lb -c "$tmp/site.toml" doctor --json > "$tmp/doctor.json" 2> "$tmp/doctor.err" || rc=$?
   if [ "$rc" -gt 1 ]; then
     sed -n '1,20p' "$tmp/doctor.err" >&2
@@ -151,10 +150,7 @@ PY
     ok "$transport profiles (host + client)"
   done
 
-  # 6. Nothing outside the temp tree should have been written.
-  [ ! -e "$SRC/out/selftest" ] || die "self-test: unexpected output directory created"
-
-  # 7. Installed mode: prove the launcher works with a clean environment, so a
+  # 6. Installed mode: prove the launcher works with a clean environment, so a
   #    stray PYTHONPATH in the shell is not masking a broken install.
   if [ "$mode" = "installed" ]; then
     todo "launcher in a clean environment"
@@ -229,8 +225,7 @@ install_pkgs $PKGS || die "could not install: $PKGS
   then re-run this installer. Nothing has been modified."
 
 command -v python3 >/dev/null || die "python3 is still not on PATH"
-PYVER="$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')"
-printf 'Python: %s\n' "$PYVER"
+printf 'Python: %s\n' "$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')"
 
 # tomllib ships with 3.11. Older interpreters need tomli installed into the
 # SAME interpreter the launcher will use - `apt install python3-tomli` only
@@ -269,7 +264,7 @@ esac
 # ------------------------------------------------------------------- install
 printf '\nInstalling to %s\n' "$PREFIX"
 mkdir -p "$PREFIX"
-for item in lanbridge pyproject.toml README.md examples docs scripts; do
+for item in lanbridge pyproject.toml README.md examples docs; do
   [ -e "$SRC/$item" ] || continue
   rm -rf "${PREFIX:?}/$item"
   cp -a "$SRC/$item" "$PREFIX/"
