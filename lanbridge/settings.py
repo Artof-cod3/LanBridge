@@ -7,7 +7,12 @@ back to the defaults below, so a two-line config file is valid.
 from __future__ import annotations
 
 import ipaddress
-import tomllib
+
+try:  # Python 3.11+
+    import tomllib
+except ModuleNotFoundError:  # Debian 11 / Ubuntu 22.04: python3-tomli
+    import tomli as tomllib  # type: ignore[no-redef]
+
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
