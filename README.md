@@ -53,6 +53,33 @@ you have a stable far end to ping.
 
 ---
 
+## Install
+
+**Debian 11/12, Ubuntu 22.04/24.04**
+
+```bash
+sudo ./install.sh                 # CLI + dashboard
+sudo ./install.sh --with openvpn  # or: --with vxlan
+```
+
+It installs `python3`, `iproute2`, `nftables`, the `tomli` backport when Python
+is older than 3.11, copies the package to `/opt/lanbridge`, and writes a
+`/usr/local/bin/lanbridge` launcher. Re-running upgrades in place. It does not
+start any tunnel daemon.
+
+**Windows** - nothing to install beyond Python 3.9+:
+
+```powershell
+cd LanBridge
+python -m lanbridge doctor
+```
+
+**From a checkout, no install** - use `python -m lanbridge ...` with the folder
+on `PYTHONPATH`; everything works the same.
+
+No third-party runtime packages are required. `tomli` is the only conditional
+dependency (Python < 3.11).
+
 ## Usage
 
 **Every command is tagged with the machine it runs on.** `[WIN-HOST]` is your
@@ -97,6 +124,15 @@ same state.
 Ports used: `udp/1194` (OpenVPN), `tcp/1194` (SoftEther), `udp/51820`
 (WireGuard). VXLAN `udp/4789` stays inside the WireGuard tunnel and must never
 be exposed.
+
+### SSH over the segment
+
+Yes - once the link is up, the other side is an ordinary host on the same
+broadcast domain, so `ssh user@192.168.50.77` works with no extra tunnelling.
+The only requirements are on the target: `sshd` running (Debian:
+`apt install openssh-server`; Windows: enable the *OpenSSH Server* feature) and
+`tcp/22` allowed by its firewall. If `ping` answers and `ssh` hangs, the fault
+is at the target, not in the tunnel.
 
 ---
 
