@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Lightweight L2 virtual LAN bridge: keep static IPs across sites"
 requires-python = ">=3.9"
 dependencies = [
-  # Only needed below Python 3.11; install.sh pulls python3-tomli there.
+  # Only needed below Python 3.11; install.sh installs it into the interpreter
+  # the launcher actually uses. 3.9 is verified by docs/VERIFIED.md.
   "tomli>=1.1.0; python_version < '3.11'",
 ]
 

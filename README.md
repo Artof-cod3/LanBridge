@@ -3,8 +3,9 @@
 A small L2 virtual LAN bridge so two machines in different places can share one
 subnet and keep their pre-configured static IP addresses.
 
-No dependencies beyond Python 3.11. Nothing is installed, no service is
+No dependencies beyond Python 3.9. Nothing is installed, no service is
 registered: the tool produces config files and setup scripts you run yourself.
+See [docs/VERIFIED.md](docs/VERIFIED.md) for what has actually been run.
 
 ```
 lanbridge doctor                         # what this machine is missing
@@ -66,6 +67,18 @@ It installs `python3`, `iproute2`, `nftables`, the `tomli` backport when Python
 is older than 3.11, copies the package to `/opt/lanbridge`, and writes a
 `/usr/local/bin/lanbridge` launcher. Re-running upgrades in place. It does not
 start any tunnel daemon.
+
+It then verifies itself: every module imports, the launcher runs, a config is
+written and read back, `doctor` completes, and profiles are generated for all
+three transports. If any step fails the installer exits non-zero and says
+which one. To run the same checks without root or changes:
+
+```bash
+./install.sh --self-test
+```
+
+Tested on Debian 11 and 12 and Ubuntu 22.04, on Python 3.9 through 3.14; the
+matrix is in [docs/VERIFIED.md](docs/VERIFIED.md).
 
 **Windows** - nothing to install beyond Python 3.9+:
 
