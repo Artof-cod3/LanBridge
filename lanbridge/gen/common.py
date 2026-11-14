@@ -24,7 +24,9 @@ def write_files(outdir: Path, files: dict[str, str]) -> list[Path]:
     for rel, content in files.items():
         target = outdir / rel
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(content, encoding="utf-8", newline="\n")
+        # Path.write_text(newline=...) is Python 3.10+; this form works on 3.9.
+        with target.open("w", encoding="utf-8", newline="\n") as handle:
+            handle.write(content)
         if rel.endswith((".sh", ".ps1")):
             target.chmod(0o755)
         written.append(target)
