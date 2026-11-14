@@ -1,0 +1,60 @@
+# LanBridge site configuration.
+# Copy to ./lanbridge.toml and edit. Every value below is a default that the
+# CLI and dashboard will use when no file exists.
+
+[site]
+name = "lab-ap"
+
+# The AP's LAN. Both machines must end up reachable at addresses inside this
+# prefix, exactly as if the remote machine were plugged into the AP.
+subnet = "192.168.50.0/24"
+gateway = "192.168.50.1"
+
+# DHCP pool of the AP's router. Used by "server-bridge" so tunnel clients can
+# optionally get a lease; static clients ignore it.
+dhcp_start = "192.168.50.200"
+dhcp_end = "192.168.50.219"
+
+# Address the bridge node (the always-on node on the AP) keeps on the LAN.
+# Must be outside the DHCP pool and unused.
+bridge_address = "192.168.50.240"
+
+[tunnel]
+# softether | openvpn | vxlan
+transport = "softether"
+
+# Public endpoint of the host node as seen by the client.
+# Empty means "not decided yet" and configs get a placeholder.
+remote_host = "203.0.113.10"
+
+# OpenVPN / SoftEther listening port.
+listen_port = 1194
+remote_port = 1194
+
+# Ethernet MTU carried inside the tunnel. Lower it if pings work but large
+# transfers stall (see docs/ARCHITECTURE.md#mtu).
+mtu = 1500
+
+# --- WireGuard + VXLAN (Linux only) ---------------------------------------
+wg_port = 51820
+wg_host_ip = "10.99.0.1"
+wg_client_ip = "10.99.0.2"
+vxlan_id = 42
+vxlan_port = 4789
+
+[host]
+# NIC on the AP node that faces the AP. Linux: "eth0", "wlan0".
+# Windows: the adapter name shown in ncpa.cpl, e.g. "Wi-Fi".
+lan_iface = "eth0"
+tap_iface = "tap0"
+bridge_iface = "br0"
+wg_iface = "wg0"
+vxlan_iface = "vxlan42"
+
+[client]
+# The pre-configured static address this machine must keep.
+static_ip = "192.168.50.77"
+
+# Name of the virtual adapter / tuntap device on the client.
+tap_iface = "tap0"
+vpn_adapter_name = "LanBridge"
