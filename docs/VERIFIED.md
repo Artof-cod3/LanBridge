@@ -70,13 +70,60 @@ base install. `install_pkgs` now retries with `--fix-missing` and then falls
 back to the release pocket (`-t bullseye`) so the install completes instead of
 dying on the 404.
 
+## End-to-end tunnel proof (single machine)
+
+`scripts/e2e_namespaces.py` proves the WireGuard + VXLAN path without a second
+machine. It runs inside `debian:bookworm-slim` with `--privileged`, creates
+three Linux network namespaces, and executes the **generated** host and client
+`up.sh` scripts unchanged (with real `wg genkey` pairs injected):
+
+| Namespace | Role |
+|---|---|
+| `lb-e2e-ap` | the AP's LAN (`192.168.50.1/24` on `va`) |
+| `lb-e2e-host` | AP-side bridge node, runs `vxlan-host/up.sh` |
+| `lb-e2e-cli` | remote client, runs `vxlan-client/up.sh`, keeps `192.168.50.77/24` |
+
+`ap0` (host) and `va` (AP) are a veth pair standing in for the AP's physical
+segment. `vh`/`vc` (10.255.0.0/30) are the "internet" underlay that WireGuard
+rides on; VXLAN rides inside WireGuard. There is no packet simulation.
+
+Result: **25 passed, 0 failed** (kernel 6.6.114.1-microsoft-standard-WSL2).
+
+| Assertion | Result |
+|---|---|
+| without a tunnel the static IP cannot reach the AP | pass (control) |
+| generated `up.sh` exits 0 on host and client | pass |
+| `vxlan42` id 42, pinned to the peer over `wg0`, enslaved to `br0` on host | pass |
+| client keeps `192.168.50.77/24` on `vxlan42`; AP subnet on-link via `vxlan42` | pass |
+| client pings `192.168.50.1`; ARP resolves to the AP's real MAC | pass |
+| AP and host bridge ping `192.168.50.77`; AP learns the client's MAC | pass |
+| broadcast/ARP for an unknown host is delivered across the tunnel | pass |
+| `ping -M do -s 1342` (full inner MTU 1370) succeeds | pass |
+| both sides complete a WireGuard handshake and carry real bytes | pass |
+
+The harness itself found a generator bug: the emitted WireGuard configs
+included `Address`/`MTU` (wg-quick keys) while `up.sh` applies them with
+`ip addr` and calls `wg setconf`, which rejects those keys with "Configuration
+parsing error". Fixed in `lanbridge/gen/vxlan.py` so the configs are valid for
+both `wg setconf` and the script-driven path.
+
 ## Not verified
 
-These need real hardware and a second node; no claim is made that they work:
+The namespace proof is real L2/L3 traffic, but it is not the whole product:
 
-* No SoftEther, OpenVPN or WireGuard process has ever been started.
-* No tunnel has carried a packet. Broadcast, ARP and static-IP behaviour over
-  the bridge is designed for, not measured.
+* **Only the WireGuard + VXLAN transport** was exercised end to end. The
+  recommended **SoftEther** path and **OpenVPN TAP** were not started and have
+  not carried a packet. (Their configs are generated and syntactically checked;
+  their daemons are not.)
+* **No real internet/NAT path.** The "internet" was a local veth pair; real
+  deployment still depends on reachability/NAT traversal, firewall rules, and
+  endpoint stability.
+* **No real Wi-Fi / physical AP segment.** The AP side was a namespace and a
+  veth, not an 802.11 link. The Wi-Fi bridging limitations the docs warn about
+  (foreign MACs over a station interface, Hyper-V vs Wi-Fi) remain real-world
+  constraints, not disproven here.
+* **No Windows runtime.** Everything above ran on Linux.
+* **No partner machine / two physical hosts.** This is a single-laptop proof.
 * `doctor` reports `verdict=fail` inside a container because containers have no
   physical adapters - that is the tool correctly finding no LAN.
 * The dashboard was not opened in a browser during these runs; only its module

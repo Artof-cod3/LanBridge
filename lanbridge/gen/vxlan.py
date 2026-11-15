@@ -29,12 +29,12 @@ def wg_host(cfg: Settings) -> str:
     return f"""{banner("LanBridge - WireGuard host config", cfg, "host")}
 # Place in /etc/wireguard/{cfg.host.wg_iface}.conf on the AP node.
 # Replace <HOST_PRIVKEY> and <CLIENT_PUBKEY> with `wg genkey` output.
+# The address and MTU are applied by up.sh: `wg setconf` rejects the
+# wg-quick-only Address/MTU keys, so this file stays usable by both.
 
 [Interface]
-Address = {cfg.tunnel.wg_host_ip}/30
 ListenPort = {cfg.tunnel.wg_port}
 PrivateKey = <HOST_PRIVKEY>
-MTU = {cfg.wg_mtu}
 
 [Peer]
 PublicKey = <CLIENT_PUBKEY>
@@ -46,11 +46,10 @@ PersistentKeepalive = 25
 def wg_client(cfg: Settings) -> str:
     return f"""{banner("LanBridge - WireGuard client config", cfg, "client")}
 # Place in /etc/wireguard/{cfg.host.wg_iface}.conf on the client.
+# Address and MTU come from up.sh, as above.
 
 [Interface]
-Address = {cfg.tunnel.wg_client_ip}/30
 PrivateKey = <CLIENT_PRIVKEY>
-MTU = {cfg.wg_mtu}
 
 [Peer]
 PublicKey = <HOST_PUBKEY>
