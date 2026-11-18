@@ -26,26 +26,62 @@
     </div>
 
     <nav class="side-nav" aria-label="Sections">
+      <div class="nav-label">Overview</div>
       <button class="nav-item is-active" data-view="dashboard" type="button">
-        <span class="nav-ico" aria-hidden="true">▤</span> Dashboard
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1.6"/><rect x="14" y="3" width="7" height="5" rx="1.6"/>
+            <rect x="14" y="12" width="7" height="9" rx="1.6"/><rect x="3" y="16" width="7" height="5" rx="1.6"/>
+          </svg>
+        </span> Dashboard
       </button>
       <button class="nav-item" data-view="guide" type="button">
-        <span class="nav-ico" aria-hidden="true">?</span> Guide
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M9.7 9.3a2.5 2.5 0 014.8 1c0 1.7-2.5 2-2.5 3.7"/><path d="M12 17.1h.01"/>
+          </svg>
+        </span> Guide
       </button>
+
+      <div class="nav-label">Network</div>
       <button class="nav-item" data-view="servers" type="button">
-        <span class="nav-ico" aria-hidden="true">◍</span> Servers
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/>
+            <path d="M7 7.5h.01M7 16.5h.01"/>
+          </svg>
+        </span> Servers
       </button>
       <button class="nav-item" data-view="activity" type="button">
-        <span class="nav-ico" aria-hidden="true">≡</span> Activity
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12h4l2.5-6.5 4 13 2.5-6.5h5"/>
+          </svg>
+        </span> Activity
       </button>
       <button class="nav-item" data-view="diagnostics" type="button">
-        <span class="nav-ico" aria-hidden="true">✓</span> Diagnostics
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M8.6 12.2l2.3 2.3 4.5-4.9"/>
+          </svg>
+        </span> Diagnostics
       </button>
       <button class="nav-item" data-view="files" type="button">
-        <span class="nav-ico" aria-hidden="true">⌸</span> Files
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/>
+          </svg>
+        </span> Files
       </button>
+
+      <div class="nav-label">Config</div>
       <button class="nav-item" data-view="settings" type="button">
-        <span class="nav-ico" aria-hidden="true">⚙</span> Settings
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"/>
+          </svg>
+        </span> Settings
       </button>
     </nav>
 
@@ -60,14 +96,14 @@
       </div>
       <div class="side-promo">
         <span class="promo-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path d="M12 3l7 3v5.5c0 4.2-2.9 7.4-7 9.5-4.1-2.1-7-5.3-7-9.5V6l7-3z"/>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.8l7.2 3v5.7c0 4.3-3 7.6-7.2 9.7-4.2-2.1-7.2-5.4-7.2-9.7V5.8l7.2-3z"/>
+            <path d="M9.2 12l2 2 3.6-3.9"/>
           </svg>
         </span>
-        <div>
-          <div class="promo-title">Your segment, your rules.</div>
-          <div class="promo-sub">Static addresses stay identical.</div>
-        </div>
+        <div class="promo-title">Your segment, your rules.</div>
+        <div class="promo-sub">Static addresses stay identical on both sides.</div>
       </div>
       <div class="rail-meta" id="rail-config">—</div>
       <div class="rail-meta" id="rail-updated">not refreshed yet</div>
@@ -91,7 +127,7 @@
       </div>
 
       <div class="topbar-right">
-        <span class="status">
+        <span class="status-pill">
           <span class="dot" id="link-dot"></span>
           <span id="link-text">checking</span>
         </span>
@@ -128,7 +164,12 @@
           </div>
         </div>
 
-        <button class="btn quiet" id="refresh" type="button">Refresh</button>
+        <button class="icon-btn" id="refresh" type="button" title="Refresh now" aria-label="Refresh now">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 11.5A8 8 0 105.6 6.8"/><path d="M20 4.5v5.2h-5.2"/>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -141,19 +182,29 @@
         <div class="grid">
           <div class="col">
             <div class="card hero">
-              <div class="hero-backdrop" aria-hidden="true"></div>
+              <div class="hero-glow" aria-hidden="true"></div>
+              <svg class="hero-map" id="hero-map" viewBox="0 0 720 300"
+                   preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
               <div class="hero-body">
                 <div class="status-ring" id="ring">
+                  <span class="ring-pulse" aria-hidden="true"></span>
                   <span class="ring-glyph" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <rect x="5" y="10.5" width="14" height="9" rx="2"/>
-                      <path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="4.5" y="10.5" width="15" height="9.5" rx="2.4"/>
+                      <path d="M8.2 10.5V7.8a3.8 3.8 0 017.6 0v2.7"/>
+                      <path d="M12 14.4v2.2"/>
                     </svg>
                   </span>
                 </div>
                 <div class="hero-state" id="link-state">—</div>
                 <div class="hero-sub" id="link-sub">—</div>
-                <button class="btn primary" id="connect" type="button">Connect</button>
+                <button class="btn primary" id="connect" type="button">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.5v13l10-6.5z"/>
+                  </svg>
+                  Connect
+                </button>
                 <div class="hero-note" id="hero-note"></div>
               </div>
             </div>
@@ -240,10 +291,16 @@
           </div>
 
           <div class="col">
-            <div class="card">
-              <div class="card-head"><h2>Host location</h2></div>
+            <div class="card endpoint-card">
+              <div class="card-head"><h2>Bridge node</h2><span class="hint">AP side</span></div>
               <div class="host">
-                <div class="host-ico" aria-hidden="true">◍</div>
+                <div class="host-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                       stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/>
+                    <path d="M12 3.4c2.3 2.4 3.5 5.4 3.5 8.6s-1.2 6.2-3.5 8.6c-2.3-2.4-3.5-5.4-3.5-8.6s1.2-6.2 3.5-8.6z"/>
+                  </svg>
+                </div>
                 <div class="host-main">
                   <div class="host-name" id="host-name">—</div>
                   <div class="host-sub" id="host-sub">—</div>

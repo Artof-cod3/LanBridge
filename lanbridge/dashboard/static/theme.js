@@ -14,18 +14,18 @@
   const STORAGE_KEY = "lanbridge.appearance";
 
   const THEMES = [
-    { id: "dark", name: "Dark", note: "Charcoal grey", swatch: ["#18181b", "#27272a", "#3f3f46"] },
-    { id: "midnight", name: "Midnight", note: "Deep graphite", swatch: ["#101012", "#1a1a1d", "#303036"] },
-    { id: "ocean", name: "Ocean", note: "Blue-grey", swatch: ["#131a1f", "#1b232a", "#32404a"] },
-    { id: "light", name: "Light", note: "Soft light grey", swatch: ["#f4f4f5", "#ffffff", "#d4d4d8"] },
+    { id: "dark", name: "Dark", note: "Deep navy charcoal", swatch: ["#080a0f", "#0f131b", "#222b3b"] },
+    { id: "midnight", name: "Midnight", note: "Near black", swatch: ["#050608", "#0b0d12", "#1e232e"] },
+    { id: "ocean", name: "Ocean", note: "Blue-grey", swatch: ["#070d12", "#0d151d", "#1e2e3b"] },
+    { id: "light", name: "Light", note: "Soft light grey", swatch: ["#eef1f7", "#ffffff", "#dde4ef"] },
   ];
 
   const ACCENTS = [
-    { id: "slate", name: "Slate", hex: "#64748b" },
-    { id: "azure", name: "Azure", hex: "#4a7dbd" },
-    { id: "sage", name: "Sage", hex: "#4d7c0f" },
-    { id: "clay", name: "Clay", hex: "#9a6b4f" },
-    { id: "steel", name: "Steel", hex: "#52616b" },
+    { id: "slate", name: "Slate", hex: "#7c8ba1" },
+    { id: "azure", name: "Azure", hex: "#3b82f6" },
+    { id: "sage", name: "Sage", hex: "#22a06b" },
+    { id: "clay", name: "Clay", hex: "#c4784f" },
+    { id: "steel", name: "Steel", hex: "#5f7d8c" },
   ];
 
   const DEFAULTS = { theme: "dark", accent: "azure", density: "comfortable" };

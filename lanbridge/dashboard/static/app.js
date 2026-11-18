@@ -207,7 +207,7 @@ function chartRates(t, windowSeconds) {
 
 function drawChart(t) {
   const svg = $("chart");
-  const W = 600, H = 132, pad = 8;
+  const W = 600, H = 152, padX = 6, padTop = 12, padBottom = 10;
   const empty = `<text class="empty-text" x="${W / 2}" y="${H / 2}" text-anchor="middle">collecting samples…</text>`;
 
   const rates = chartRates(t, trafficWindow);
@@ -216,28 +216,96 @@ function drawChart(t) {
     return;
   }
 
-  const peak = Math.max(1, ...rates.map((r) => Math.max(r.rx, r.tx)));
-  const x = (i) => pad + (i * (W - pad * 2)) / (rates.length - 1);
-  const y = (v) => H - pad - (v / peak) * (H - pad * 2);
-  const line = (key) =>
-    rates.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(r[key]).toFixed(1)}`).join(" ");
+  const peak = Math.max(1e-6, ...rates.map((r) => Math.max(r.rx, r.tx)));
+  const n = rates.length;
+  const x = (i) => padX + (i * (W - padX * 2)) / (n - 1);
+  const y = (v) => H - padBottom - (v / peak) * (H - padBottom - padTop);
 
-  const grid = [0.25, 0.5, 0.75]
-    .map((f) => `<line class="grid-line" x1="${pad}" x2="${W - pad}" y1="${(H * f).toFixed(1)}" y2="${(H * f).toFixed(1)}"/>`)
+  /* Catmull-Rom style tangents keep the curve smooth without overshooting. */
+  const curve = (key) => {
+    const pts = rates.map((r, i) => ({ x: x(i), y: y(r[key]) }));
+    if (pts.length < 2) return "";
+    let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+    for (let i = 0; i < pts.length - 1; i += 1) {
+      const p0 = pts[i - 1] || pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] || p2;
+      const k = 0.16;
+      const c1x = p1.x + (p2.x - p0.x) * k;
+      const c1y = p1.y + (p2.y - p0.y) * k;
+      const c2x = p2.x - (p3.x - p1.x) * k;
+      const c2y = p2.y - (p3.y - p1.y) * k;
+      d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    }
+    return d;
+  };
+
+  const area = (d) =>
+    `${d} L${x(n - 1).toFixed(1)},${H - padBottom} L${padX},${H - padBottom} Z`;
+
+  const grid = [0.3, 0.6, 0.9]
+    .map((f) => `<line class="grid-line" x1="${padX}" x2="${W - padX}" y1="${(padTop + (H - padTop - padBottom) * f).toFixed(1)}" y2="${(padTop + (H - padTop - padBottom) * f).toFixed(1)}"/>`)
     .join("");
 
-  const area = `${line("rx")} L${x(rates.length - 1).toFixed(1)},${H - pad} L${pad},${H - pad} Z`;
+  const rxPath = curve("rx");
+  const txPath = curve("tx");
 
   svg.innerHTML = `<defs>
       <linearGradient id="rxFill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"/>
-        <stop offset="100%"/>
+        <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="txFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--series-2)" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="var(--series-2)" stop-opacity="0"/>
       </linearGradient>
     </defs>
     ${grid}
-    <path class="series-area" d="${area}"/>
-    <path class="series-b" d="${line("tx")}"/>
-    <path class="series-a" d="${line("rx")}"/>`;
+    <path class="series-area-b" d="${area(txPath)}"/>
+    <path class="series-area-a" d="${area(rxPath)}"/>
+    <path class="series-b" d="${txPath}"/>
+    <path class="series-a" d="${rxPath}"/>`;
+}
+
+/* ------------------------------------------------------------- hero map */
+/* Dotted world map drawn from soft landmass ellipses in lon/lat. Reads as a
+ * map at a glance while staying a few hundred DOM nodes, not an image. */
+const LANDMASSES = [
+  [-152, 64, 14, 7], [-105, 59, 31, 12], [-99, 38, 24, 11], [-103, 22, 10, 7],
+  [-72, 17, 9, 3], [-42, 73, 12, 8], [-61, -4, 17, 12], [-66, -31, 9, 14],
+  [4, 50, 14, 9], [18, 62, 10, 6], [16, 22, 26, 12], [22, -12, 14, 14],
+  [45, 28, 12, 9], [78, 22, 10, 9], [62, 60, 30, 9], [120, 62, 32, 9],
+  [105, 33, 18, 10], [105, 13, 10, 8], [115, -2, 16, 4], [138, 37, 4, 6],
+  [134, -25, 17, 10], [172, -42, 4, 4], [47, -19, 3, 6], [-2, 54, 4, 4],
+];
+
+function onLand(lon, lat) {
+  for (const [cx, cy, rx, ry] of LANDMASSES) {
+    const wobble = 1 + 0.07 * Math.sin(lon * 0.8) * Math.cos(lat * 0.6);
+    const dx = (lon - cx) / (rx * wobble);
+    const dy = (lat - cy) / (ry * wobble);
+    if (dx * dx + dy * dy <= 1) return true;
+  }
+  return false;
+}
+
+function buildHeroMap() {
+  const svg = $("hero-map");
+  if (!svg || svg.dataset.built === "1") return;
+  const W = 720, H = 300;
+  const dots = [];
+  for (let lat = 76; lat >= -56; lat -= 3.1) {
+    const step = 3.1 / Math.max(0.45, Math.cos((lat * Math.PI) / 180));
+    for (let lon = -178; lon <= 178; lon += step) {
+      if (!onLand(lon, lat)) continue;
+      const px = ((lon + 180) / 360) * W;
+      const py = ((76 - lat) / 132) * H;
+      dots.push(`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="1.45"/>`);
+    }
+  }
+  svg.innerHTML = dots.join("");
+  svg.dataset.built = "1";
 }
 
 function renderDetails() {
@@ -723,4 +791,29 @@ setInterval(() => {
   if (!document.hidden) refresh();
 }, 5000);
 
+buildHeroMap();
 refresh();
+
+/* TEMP-VERIFY */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const q = new URLSearchParams(location.search);
+    const view = q.get("view");
+    if (view) showView(view);
+    if (q.get("demo") === "1" && state) {
+      const now = Date.now() / 1000;
+      const samples = Array.from({ length: 44 }, (_, i) => ({
+        t: now - (43 - i) * 2,
+        rx: 300000 + i * 64000 + Math.sin(i / 2.6) * 90000,
+        tx: 120000 + i * 26000 + Math.cos(i / 3.1) * 42000,
+      }));
+      state = {
+        ...state,
+        link: { ...state.link, state: "linked", address: "192.168.50.77/24", device: "tap0", processes: [{ name: "vpnclient", pid: "4412", label: "SoftEther client" }] },
+        traffic: { available: true, device: "tap0", rx_bytes: 2411724, tx_bytes: 1153433, rx_rate: 1204000, tx_rate: 480000, samples },
+        session: { ...state.session, linked_since: now - 754 },
+      };
+      render();
+    }
+  }, 2500);
+});
