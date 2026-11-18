@@ -26,7 +26,6 @@ Requires: Linux, root, iproute2, wireguard-tools, iputils-ping.
 from __future__ import annotations
 
 import argparse
-import ipaddress
 import os
 import re
 import shlex
@@ -268,8 +267,7 @@ def main() -> int:
         step("real WireGuard keys in place of the placeholders")
         host_priv, host_pub = wg_keypair()
         cli_priv, cli_pub = wg_keypair()
-        wgdir = Path("/etc/wireguard")
-        wgdir.mkdir(parents=True, exist_ok=True)
+        Path("/etc/wireguard").mkdir(parents=True, exist_ok=True)  # bind-mount target
         for role_dir, priv, peer in ((host_dir, host_priv, cli_pub), (cli_dir, cli_priv, host_pub)):
             conf = next(role_dir.glob("wg-*.conf"))
             patched = patch_conf(conf.read_text(encoding="utf-8"), priv, peer)
