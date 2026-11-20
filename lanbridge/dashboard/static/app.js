@@ -793,27 +793,3 @@ setInterval(() => {
 
 buildHeroMap();
 refresh();
-
-/* TEMP-VERIFY */
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    const q = new URLSearchParams(location.search);
-    const view = q.get("view");
-    if (view) showView(view);
-    if (q.get("demo") === "1" && state) {
-      const now = Date.now() / 1000;
-      const samples = Array.from({ length: 44 }, (_, i) => ({
-        t: now - (43 - i) * 2,
-        rx: 300000 + i * 64000 + Math.sin(i / 2.6) * 90000,
-        tx: 120000 + i * 26000 + Math.cos(i / 3.1) * 42000,
-      }));
-      state = {
-        ...state,
-        link: { ...state.link, state: "linked", address: "192.168.50.77/24", device: "tap0", processes: [{ name: "vpnclient", pid: "4412", label: "SoftEther client" }] },
-        traffic: { available: true, device: "tap0", rx_bytes: 2411724, tx_bytes: 1153433, rx_rate: 1204000, tx_rate: 480000, samples },
-        session: { ...state.session, linked_since: now - 754 },
-      };
-      render();
-    }
-  }, 2500);
-});
