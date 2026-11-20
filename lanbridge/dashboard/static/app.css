@@ -576,6 +576,10 @@ body, .sidebar, .card, .hero, .btn, input, select, .nav-item,
 #chart .series-b { fill: none; stroke: var(--series-2); stroke-width: 1.6; stroke-linecap: round; opacity: 0.9; vector-effect: non-scaling-stroke; }
 #chart .series-area-a { stroke: none; fill: url(#rxFill); }
 #chart .series-area-b { stroke: none; fill: url(#txFill); }
+/* var() does not resolve inside SVG presentation attributes, so the gradient
+ * stops take their colour from these rules and follow theme switches live. */
+#chart #rxFill stop { stop-color: var(--accent); }
+#chart #txFill stop { stop-color: var(--series-2); }
 #chart .empty-text { fill: var(--faint); font-size: 10.5px; font-family: var(--mono); }
 
 .chart-axis {
