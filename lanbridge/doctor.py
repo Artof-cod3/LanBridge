@@ -36,9 +36,25 @@ def _in_network(ip: str, cfg: Settings) -> bool:
         return False
 
 
-def run_checks(cfg: Settings) -> list[Check]:
+def run_checks(cfg: Settings, snap: dict[str, Any] | None = None) -> list[Check]:
+    """Check the environment and address plan.
+
+    `snap` is an optional ``sysinfo.snapshot()``: when the dashboard has just
+    taken one, reuse it instead of shelling out to the OS a second time.
+    """
     checks: list[Check] = []
     add = checks.append
+
+    if snap is None:
+        admin = sysinfo.is_admin()
+        found = sysinfo.tools()
+        ifaces = sysinfo.interfaces()
+        forwarding = sysinfo.sysctl_value("net.ipv4.ip_forward")
+    else:
+        admin = bool(snap["admin"])
+        found = snap["tools"]
+        ifaces = [sysinfo.Interface(**row) for row in snap["interfaces"]]
+        forwarding = snap.get("forwarding")
 
     # 1. Interpreter -------------------------------------------------------
     if sys.version_info >= (3, 11):
@@ -55,7 +71,7 @@ def run_checks(cfg: Settings) -> list[Check]:
         )
 
     # 2. Privileges --------------------------------------------------------
-    if sysinfo.is_admin():
+    if admin:
         add(Check("privileges", "ok", "Privileges", "elevated (can create adapters and edit routes)"))
     else:
         add(
@@ -93,7 +109,6 @@ def run_checks(cfg: Settings) -> list[Check]:
         )
 
     # 4. Tooling -----------------------------------------------------------
-    found = sysinfo.tools()
     if found.get("openvpn"):
         add(Check("openvpn", "ok", "OpenVPN", "openvpn binary on PATH"))
     else:
@@ -136,7 +151,7 @@ def run_checks(cfg: Settings) -> list[Check]:
         if not found.get("ip"):
             add(Check("iproute2", "fail", "iproute2", "the `ip` command is missing",
                       "`apt install iproute2` - required to create bridges and VXLAN devices"))
-        forward = sysinfo.sysctl_value("net.ipv4.ip_forward")
+        forward = forwarding
         if forward == "1":
             add(Check("forwarding", "ok", "IPv4 forwarding", "net.ipv4.ip_forward=1"))
         else:
@@ -151,8 +166,6 @@ def run_checks(cfg: Settings) -> list[Check]:
             )
 
     # 5. Adapters ----------------------------------------------------------
-    ifaces = sysinfo.interfaces()
-    device_names = [i.name.lower() for i in ifaces]
     virtual = sysinfo.virtual_devices(ifaces)
     if virtual:
         add(Check("virtual-device", "ok", "Virtual adapter", "present: " + ", ".join(virtual)))

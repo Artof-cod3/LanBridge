@@ -323,7 +323,7 @@ def make_handler(state: State):
                     state.linked_since = None
                     state.log("Link offline", "warn")
 
-            doctor_result = doctor.summary(doctor.run_checks(cfg))
+            doctor_result = doctor.summary(doctor.run_checks(cfg, snap))
             outputs: list[dict[str, str]] = []
             if state.outdir.exists():
                 for path in sorted(state.outdir.rglob("*")):
