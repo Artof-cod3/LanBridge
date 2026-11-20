@@ -1,11 +1,10 @@
 """Settings: defaults, coercion from loose TOML, and a lossless round-trip."""
 
-import tomllib
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from lanbridge.settings import Settings, dumps
+from lanbridge.settings import Settings, dumps, tomllib
 
 
 class DefaultsTest(unittest.TestCase):
