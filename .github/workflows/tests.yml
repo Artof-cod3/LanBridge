@@ -17,13 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-latest, python: "3.9" }    # oldest supported; tomli fallback
+          - { os: ubuntu-22.04, python: "3.9" }    # oldest supported; tomli fallback
           - { os: ubuntu-latest, python: "3.12" }
           - { os: ubuntu-latest, python: "3.14" }
           - { os: windows-latest, python: "3.12" } # primary dashboard platform
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - name: Install
