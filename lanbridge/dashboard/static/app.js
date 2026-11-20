@@ -146,6 +146,7 @@ function renderHero() {
     : LINK_SUB[link.state];
   $("hero-note").textContent =
     link.state === "linked" ? `${link.device} · MTU ${link.mtu}` : "";
+  $("connect-label").textContent = link.state === "linked" ? "Check connection" : "Connect";
 }
 
 function renderProbe() {
