@@ -151,6 +151,8 @@ is at the target, not in the tunnel.
 
 ## Dashboard
 
+![LanBridge dashboard](docs/dashboard.png)
+
 `lanbridge dashboard` serves the app on `127.0.0.1:8770`, polling state every
 5 seconds:
 
@@ -193,21 +195,27 @@ whose `Host` header is not loopback.
 
 One token layer in `static/app.css`, one controller in `static/theme.js`:
 
-* **Themes** - Dark (charcoal), Midnight (graphite), Ocean (blue-grey), Light.
+* **Themes** - Dark (deep navy charcoal, the default), Midnight (near black),
+  Ocean (blue-grey), Light.
 * **Follow system** - a real mode, not a fallback. It reads
   `prefers-color-scheme` and re-applies when the OS changes while the page is
   open.
-* **Accent** - slate / azure / sage / clay / steel. Azure is the reference
-  layout's blue, kept slightly desaturated; the rest are quieter. Status dots
-  keep their own semantic colours, so no accent choice can make *offline* look
-  healthy.
-* **Density** - compact (24 px rows, 12 px text) and comfortable (30 px, 13 px).
+* **Accent** - slate / azure / sage / clay / steel. Azure is the default: it
+  drives the hero glow, the primary button, the active navigation rail and the
+  first chart series. A second, fixed violet series marks upload, so the two
+  traffic directions never rely on colour alone being distinguishable.
+* **Density** - compact (30 px rows, 12 px text) and comfortable (38 px, 13 px).
 * **Persistence** - `localStorage["lanbridge.appearance"]`, applied before body
   parse so there is no flash of the wrong theme on reload.
-* **Transitions** - 140 ms on colour properties only, disabled entirely under
-  `prefers-reduced-motion`.
+* **Transitions** - 160 ms on colour properties only, disabled entirely under
+  `prefers-reduced-motion` (including the connected-state ring pulse).
 * **Consistency** - every rule reads variables; no view can drift from the
   palette.
+
+Two decorative layers carry no data and say so: the hero's dotted world map is
+drawn from landmass ellipses at load (~700 SVG dots, no image asset), and the
+traffic curve is a smoothed reading of real counters - with no tunnel device it
+prints "collecting samples…" rather than drawing an invented line.
 
 ---
 
