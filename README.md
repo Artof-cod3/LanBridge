@@ -243,6 +243,21 @@ the VM NIC modes (VirtualBox/VMware/Hyper-V/libvirt).
 
 ---
 
+## Development
+
+The test suite is stdlib `unittest`, no extra dependencies:
+
+```
+python -m unittest discover -s tests -t . -v
+```
+
+`.github/workflows/tests.yml` runs it on Python 3.9, 3.12 and 3.14 (Linux) and
+3.12 (Windows), then smoke-tests `lanbridge doctor`. Tests only read the
+config and OS facts through fixtures or arguments, so they never touch the
+machine.
+
+---
+
 ## Limits worth stating in the report
 
 * L2 means everyone on the tunnel is on the AP's segment. There is no
