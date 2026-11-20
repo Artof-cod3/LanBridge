@@ -35,6 +35,11 @@ def by_id(checks):
 
 
 class AddressPlanTest(unittest.TestCase):
+    def test_interpreter_check_names_the_toml_backend(self):
+        check = by_id(doctor.run_checks(Settings(), snap()))["python"]
+        self.assertEqual(check.level, "ok")
+        self.assertTrue("tomllib" in check.detail or "tomli" in check.detail)
+
     def test_default_plan_is_clean(self):
         checks = by_id(doctor.run_checks(Settings(), snap()))
         self.assertEqual(checks["static-ip"].level, "ok")

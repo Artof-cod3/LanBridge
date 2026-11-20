@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from . import sysinfo
-from .settings import Settings
+from .settings import Settings, tomllib
 
 WINDOWS = sys.platform.startswith("win")
 LINUX = sys.platform.startswith("linux")
@@ -57,18 +57,10 @@ def run_checks(cfg: Settings, snap: dict[str, Any] | None = None) -> list[Check]
         forwarding = snap.get("forwarding")
 
     # 1. Interpreter -------------------------------------------------------
-    if sys.version_info >= (3, 11):
-        add(Check("python", "ok", "Python interpreter", f"{platform.python_version()} (tomllib available)"))
-    else:
-        add(
-            Check(
-                "python",
-                "fail",
-                "Python interpreter",
-                f"{platform.python_version()} is too old",
-                "Install Python 3.11 or newer; tomllib and dataclass slots are required.",
-            )
-        )
+    # settings only imports once it has a TOML parser: tomllib on 3.11+, tomli
+    # on older interpreters, which install.sh installs.
+    add(Check("python", "ok", "Python interpreter",
+              f"{platform.python_version()} ({tomllib.__name__} available)"))
 
     # 2. Privileges --------------------------------------------------------
     if admin:
