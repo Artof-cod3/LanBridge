@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, asdict
 from typing import Any
 
@@ -330,9 +331,22 @@ def _prefix_length(route: Route) -> int:
 
 
 def snapshot() -> dict[str, Any]:
-    """One JSON-serialisable view of the machine, used by the dashboard."""
-    ifaces = interfaces()
-    ordered = sorted(routes(), key=_prefix_length)  # 0.0.0.0/0 first
+    """One JSON-serialisable view of the machine, used by the dashboard.
+
+    Each probe shells out - on Windows four separate PowerShell processes - so
+    they run together: a poll costs the slowest probe instead of their sum.
+    """
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        ifaces_future = pool.submit(interfaces)
+        routes_future = pool.submit(routes)
+        processes_future = pool.submit(processes)
+        tools_future = pool.submit(tools)
+        ifaces = ifaces_future.result()
+        route_list = routes_future.result()
+        running = processes_future.result()
+        found = tools_future.result()
+
+    ordered = sorted(route_list, key=_prefix_length)  # 0.0.0.0/0 first
     return {
         "platform": os_label(),
         "os": platform.system().lower(),
@@ -341,8 +355,8 @@ def snapshot() -> dict[str, Any]:
         "interfaces": [asdict(i) for i in ifaces],
         "virtual_devices": virtual_devices(ifaces),
         "routes": [asdict(r) for r in ordered[:40]],
-        "processes": processes(),
-        "tools": tools(),
+        "processes": running,
+        "tools": found,
         "forwarding": sysctl_value("net.ipv4.ip_forward"),
         "kernel": kernel_release(),
     }
